@@ -1,0 +1,7 @@
+node1 region1 zone1,node2 region1 zone1,node3 region2 zone1,node4 region2 zone2
+1 GET region1 zone1
+2 POST region1 zone1
+3 GET region2 zone3
+4 GET region1 zone1
+5 GET region2 zone1
+6 POST region1 zone1
