@@ -1,0 +1,12 @@
+n0 r0 z0,n1 r0 z0,n2 r0 z0,n3 r0 z0,n4 r0 z0,n5 r0 z0,n6 r0 z0,n7 r0 z0,n8 r0 z0,n9 r0 z0,
+1 GET r0 z0
+2 GET r0 z0
+3 GET r0 z0
+4 GET r0 z0
+5 GET r0 z0
+6 GET r0 z0
+7 GET r0 z0
+8 GET r0 z0
+9 GET r0 z0
+10 GET r0 z0
+

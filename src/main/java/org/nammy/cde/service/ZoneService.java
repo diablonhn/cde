@@ -1,61 +1,72 @@
 package org.nammy.cde.service;
 
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
-public class ZoneService {
+import org.nammy.cde.config.NodeConfig;
+import org.nammy.cde.config.SystemConfig;
+import org.nammy.cde.model.Resource;
+
+public class ZoneService extends Resource<ZoneService> {
   private static final Logger LOG = Logger.getLogger(ZoneService.class.getSimpleName());
 
-  private final Map<String, NodeService> nodeMap = new LinkedHashMap<>();
+  private final Map<String, NodeService> nodeMap;
 
-  private final RegionService region;
-  private final String name;
+  private final TreeSet<NodeService> queue = new TreeSet<>();
 
-  public ZoneService(RegionService region, String name) {
-    this.region = region;
-    this.name = name;
+  private ZoneService(String name, Map<String, NodeService> nodeMap) {
+    super(name, nodeMap.size());
+    this.nodeMap = nodeMap;
+    this.queue.addAll(nodeMap.values());
   }
 
-  public static ZoneService create(RegionService region, String name) {
-    return new ZoneService(region, name);
-  }
+  public static ZoneService create(String regionName, String zoneName, SystemConfig systemConfig) {
+    Map<String, NodeService> nodeMap = new LinkedHashMap<>();
 
-  public String getName() {
-    return name;
+    for (NodeConfig nodeConfig : systemConfig.getNodeConfigs()) {
+      if (nodeConfig.getRegionName().equals(regionName) && nodeConfig.getZoneName().equals(zoneName)) {
+        String nodeName = nodeConfig.getNodeName();
+
+        nodeMap.computeIfAbsent(nodeName, arg -> NodeService.create(nodeName, regionName, zoneName));
+      }
+    }
+
+    return new ZoneService(zoneName, nodeMap);
   }
 
   public NodeService getNode(String name) {
     return nodeMap.get(name);
   }
 
-  public NodeService getOrCreateNode(String name) {
-    return nodeMap.computeIfAbsent(name, this::createNode);
+  public int getSize() {
+    return nodeMap.size();
   }
 
-  private NodeService createNode(String name) {
-    NodeService node = NodeService.create(this, name);
-
-    LOG.info("created node=" + node);
-
-    return node;
+  public Iterator<NodeService> getNodes() {
+    return queue.iterator();
   }
 
-  public RegionService getRegion() {
-    return region;
+  public NodeService first() {
+    return queue.first();
   }
 
-  public Collection<NodeService> getNodes() {
-    return nodeMap.values();
+  public void updateLoad(NodeService node, double cost) {
+    addLoad(cost);
+
+    queue.remove(node);
+    node.updateLoad(cost);
+    queue.add(node);
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName()
             + "["
-            + "name=" + name
-            + ", region=" + region.getName()
+            + "name=" + getName()
+            + ", weightedLoad=" + getWeightedLoad()
             + ", nodes=" + nodeMap.values()
             + "]";
   }
