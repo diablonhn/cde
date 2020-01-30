@@ -125,8 +125,8 @@ public class ZoneRegionWeightedLoadBalancerStrategy implements LoadBalancerStrat
     }
 
     if (secondary != null) {
-      double primaryCost = primary.getWeightedLoad() * primaryCostFactor;
-      double secondaryCost = secondary.getWeightedLoad() * crossResourceCostFactor;
+      double primaryCost = primary.getWeightedLoad() + 1.0 * primaryCostFactor;
+      double secondaryCost = secondary.getWeightedLoad() + 1.0 * crossResourceCostFactor;
 
       // pick the least loaded resource, taking into account the cost
       if (secondaryCost < primaryCost) {
